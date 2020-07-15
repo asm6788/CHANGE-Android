@@ -15,6 +15,7 @@ import android.graphics.Point;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -708,10 +709,12 @@ public class MainActivity extends Activity {
                                         Effect_Player.start();
                                     }
                                 } else if (what.Function == 41) {
-                                    if (what.Parms[1].equals("\"" + what.Parms[0].replace("\"", "") + ".dat" + "\"")) {
-                                        Script = what.Parms[1].replace("\"", "");
-                                        surfaceHolder.unlockCanvasAndPost(canvas);
-                                        break mainloop;
+                                    if (!what.Parms[1].contains("MAP")) {
+                                        if (what.Parms[1].equals("\"" + what.Parms[0].replace("\"", "") + ".dat" + "\"")) {
+                                            Script = what.Parms[1].replace("\"", "");
+                                            surfaceHolder.unlockCanvasAndPost(canvas);
+                                            break mainloop;
+                                        }
                                     }
                                 }
                             }

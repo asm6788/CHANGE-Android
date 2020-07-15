@@ -124,7 +124,7 @@ public class EAGLS {
                         genrated.add(new Todo(Todo.Kind.Function, null, null, null, function, parms));
                         function = -2;
                         buffer = "";
-                    } else if (function == -2 && line.charAt(i) == '_' && i != 4 && line.charAt(0) != '$') {
+                    } else if ((function == -2 || function == -1) && line.charAt(i) == '_' && i != 4 && line.charAt(0) != '$') {
                         line = line.substring(line.lastIndexOf('_'));
                         genrated.add(new Todo(Todo.Kind.Assign, null, null, null, function, line.substring(0, line.length() - 1).split("[=]", -1)));
                         break;
