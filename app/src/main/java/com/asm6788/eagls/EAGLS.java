@@ -122,8 +122,9 @@ public class EAGLS {
                         offset += buffer.split("\"", -1).length - 1;
                         String[] parms = buffer.split("[,]", -1);
                         genrated.add(new Todo(Todo.Kind.Function, null, null, null, function, parms));
+                        function = -2;
                         buffer = "";
-                    } else if (line.charAt(i) == '_' && i != 4 && line.charAt(0) != '$') {
+                    } else if (function == -2 && line.charAt(i) == '_' && i != 4 && line.charAt(0) != '$') {
                         line = line.substring(line.lastIndexOf('_'));
                         genrated.add(new Todo(Todo.Kind.Assign, null, null, null, function, line.substring(0, line.length() - 1).split("[=]", -1)));
                         break;

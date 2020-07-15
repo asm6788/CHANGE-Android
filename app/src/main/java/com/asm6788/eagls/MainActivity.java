@@ -3,9 +3,6 @@ package com.asm6788.eagls;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -17,8 +14,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.Gravity;
@@ -28,12 +23,9 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import androidx.activity.OnBackPressedCallback;
 
 import org.apache.commons.io.IOUtils;
 
@@ -44,14 +36,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -239,10 +224,10 @@ public class MainActivity extends Activity {
         }
     }
 
-    private static Point resize(int imageWidth, int imageHeight, int maxWidth, int maxHeight) {
+    private static Point resize(int maxWidth, int maxHeight) {
         if (maxHeight > 0 && maxWidth > 0) {
-            int width = imageWidth;
-            int height = imageHeight;
+            int width = 1024;
+            int height = 768;
             float ratioBitmap = (float) width / (float) height;
             float ratioMax = (float) maxWidth / (float) maxHeight;
 
@@ -255,7 +240,7 @@ public class MainActivity extends Activity {
             }
             return new Point(finalWidth, finalHeight);
         } else {
-            return new Point(imageWidth, imageHeight);
+            return new Point(1024, 768);
         }
     }
 
@@ -287,7 +272,7 @@ public class MainActivity extends Activity {
             filename = new String(filename_buffer).trim();
             if (filename.equals(""))
                 break;
-            if(input.equals("SCPACK.idx") && !(filename.startsWith("sc") || filename.startsWith("sm"))){
+            if (input.equals("SCPACK.idx") && !(filename.startsWith("sc") || filename.startsWith("sm"))) {
                 continue;
             }
             byte[] offset_buffer = new byte[8];
@@ -415,7 +400,7 @@ public class MainActivity extends Activity {
         EAGLS.Charcter charcter = null;
         TextView subtitle = findViewById(R.id.subtitle);
         private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        Point image = resize(1024, 768, size.x, size.y);
+        Point image = resize(size.x, size.y);
 
         void Draw(Bitmap CG, final String MENT, Canvas canvas) {
             canvas.drawColor(Color.BLACK);
@@ -525,6 +510,7 @@ public class MainActivity extends Activity {
                     Canvas canvas = surfaceHolder.lockCanvas();
                     Draw(null, "스크립트 암호화 해독 실패", canvas);
                 }
+                mainloop:
                 while (running) {
                     if (surfaceHolder.getSurface().isValid()) {
                         String _GRPName = null;
@@ -538,6 +524,7 @@ public class MainActivity extends Activity {
                             Touched = false;
                             boolean talked = false;
                             boolean Excuted_Function = false;
+
                             EAGLS.Todo what = genrated.get(i);
                             Canvas canvas = surfaceHolder.lockCanvas();
                             paint.setColor(Color.WHITE);
@@ -572,7 +559,7 @@ public class MainActivity extends Activity {
                             if (what.kind == EAGLS.Todo.Kind.Function) {
                                 Excuted_Function = true;
                                 if (what.Function == 52) {
-                                    if (what.Parms[0].equals("\"_GRPName\"") ||what.Parms[0].equals("\"_grpname\"")  ) {
+                                    if (what.Parms[0].equals("\"_GRPName\"") || what.Parms[0].equals("\"_grpname\"")) {
                                         _GRPName = what.Parms[1].replace("\"", "");
                                         if (Char_Parsed) {
                                             charcter = new EAGLS.Charcter(_CosSel, _Face, _Cheek, _Parts, _Target, _CharUP);
@@ -706,7 +693,7 @@ public class MainActivity extends Activity {
                                             Bitmap bitmap = BitmapFactory.decodeByteArray(RAW_byte, 0, RAW_byte.length);
                                             CG = resize(bitmap, size.x, size.y);
                                         }
-                                    } else if(what.Parms[1].equals("\"00Wait.dat\"")){
+                                    } else if (what.Parms[1].equals("\"00Wait.dat\"")) {
                                         try {
                                             Thread.sleep(_WaitTime);
                                         } catch (InterruptedException e) {
@@ -719,6 +706,12 @@ public class MainActivity extends Activity {
                                         Effect_Player.setVolume(0.7f, 0.7f);
                                         PlayAudio(Effect_Player, Decode_WAVE_pak(what.Parms[0].replace("\"", "") + ".wav"));
                                         Effect_Player.start();
+                                    }
+                                } else if (what.Function == 41) {
+                                    if (what.Parms[1].equals("\"" + what.Parms[0].replace("\"", "") + ".dat" + "\"")) {
+                                        Script = what.Parms[1].replace("\"", "");
+                                        surfaceHolder.unlockCanvasAndPost(canvas);
+                                        break mainloop;
                                     }
                                 }
                             }
@@ -739,7 +732,7 @@ public class MainActivity extends Activity {
                                 } else if (what.Parms[0].equals("_CharUP")) {
                                     _CharUP = what.Parms[1].equals("1");
                                     Char_Parsed = true;
-                                } else if (what.Parms[0].equals("_WaitTime")){
+                                } else if (what.Parms[0].equals("_WaitTime")) {
                                     _WaitTime = Integer.parseInt(what.Parms[1]);
                                 }
                             }
@@ -791,10 +784,9 @@ public class MainActivity extends Activity {
                     int orientation = getResources().getConfiguration().orientation;
                     if (orientation != Configuration.ORIENTATION_LANDSCAPE) {
                         //수직
-                        params.height = (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) * ((float) size.y / image.x) * 1.3);
-                    }
-                    else {
-                        params.height = (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) * ((float) size.x / image.x) * 1.3);
+                        params.height = (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) * ((float) size.y / image.x));
+                    } else {
+                        params.height = (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) * ((float) size.x / image.x));
                     }
                     videoPlayer.setLayoutParams(params);
                     videoPlayer.setX((size.x / 2) - (image.x / 2));
