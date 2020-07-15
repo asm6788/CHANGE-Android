@@ -512,15 +512,14 @@ public class MainActivity extends Activity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                // genrated = sci.Parse(new String(Decode_SCRIPT_pak(Script), "Shift-jis").split("\\r?\\n"));
-                if(Locale.getDefault().getLanguage().equals("ko"))
-                    genrated = sci.Parse(text.toString().split("\\r?\\n"));
-                else if(Locale.getDefault().getLanguage().equals("jp")) {
+                if (Locale.getDefault().getLanguage().equals("ja")) {
                     try {
                         genrated = sci.Parse(new String(Decode_SCRIPT_pak(Script), "Shift-jis").split("\\r?\\n"));
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    genrated = sci.Parse(text.toString().split("\\r?\\n"));
                 }
                 if (genrated == null) {
                     Canvas canvas = surfaceHolder.lockCanvas();
