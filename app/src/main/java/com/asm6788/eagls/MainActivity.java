@@ -791,10 +791,10 @@ public class MainActivity extends Activity {
                     int orientation = getResources().getConfiguration().orientation;
                     if (orientation != Configuration.ORIENTATION_LANDSCAPE) {
                         //수직
-                        params.height = (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) * ((float) size.y / image.x));
+                        params.height = (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) * ((float) size.y / image.x) * 1.3);
                     }
                     else {
-                        params.height = (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) * ((float) size.x / image.x));
+                        params.height = (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) * ((float) size.x / image.x) * 1.3);
                     }
                     videoPlayer.setLayoutParams(params);
                     videoPlayer.setX((size.x / 2) - (image.x / 2));
