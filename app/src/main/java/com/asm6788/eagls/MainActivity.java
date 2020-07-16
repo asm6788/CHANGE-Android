@@ -775,6 +775,26 @@ public class MainActivity extends Activity {
             this.sh = sh;
         }
 
+        private Point resize(int imageWidth, int imageHeight, int maxWidth, int maxHeight) {
+            if (maxHeight > 0 && maxWidth > 0) {
+                int width = imageWidth;
+                int height = imageHeight;
+                float ratioBitmap = (float) width / (float) height;
+                float ratioMax = (float) maxWidth / (float) maxHeight;
+
+                finalWidth = maxWidth;
+                int finalHeight = maxHeight;
+                if (ratioMax > ratioBitmap) {
+                    finalWidth = (int) ((float) maxHeight * ratioBitmap);
+                } else {
+                    finalHeight = (int) ((float) maxWidth / ratioBitmap);
+                }
+                return new Point(finalWidth, finalHeight);
+            } else {
+                return new Point(imageWidth, imageHeight);
+            }
+        }
+
         public void run(String Path, final boolean IsMini, final boolean _MovieLoopFlg, final Point image) {
             final MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
             metaRetriever.setDataSource(Path);
@@ -787,13 +807,7 @@ public class MainActivity extends Activity {
                         params.width = Gravity.NO_GRAVITY;
                     }
                     params.width = image.x;
-                    int orientation = getResources().getConfiguration().orientation;
-                    if (orientation != Configuration.ORIENTATION_LANDSCAPE) {
-                        //수직
-                        params.height = (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) * ((float) size.y / image.x));
-                    } else {
-                        params.height = (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)) * ((float) size.x / image.x));
-                    }
+                    params.height = resize((int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH))), (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT))), image.x, image.y).y;
                     videoPlayer.setLayoutParams(params);
                     videoPlayer.setX((size.x / 2) - (image.x / 2));
                     videoPlayer.setVisibility(View.VISIBLE);
