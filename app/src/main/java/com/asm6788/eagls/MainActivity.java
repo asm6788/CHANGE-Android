@@ -94,10 +94,12 @@ public class MainActivity extends Activity {
         Display display = getWindowManager().getDefaultDisplay();
         display.getSize(size);
 
-        int temp = size.x;
-        size.x = size.y;
-        size.y = temp;
-
+        int orientation = getResources().getConfiguration().orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            int temp = size.x;
+            size.x = size.y;
+            size.y = temp;
+        }
         METADATA_Script = Decode_idx("SCPACK.idx");
         METADATA_CG = Decode_idx("CGPACK.idx");
         METADATA_Wave = Decode_idx("WAVEPACK.idx");
@@ -610,6 +612,7 @@ public class MainActivity extends Activity {
                                             } catch (Exception e) {
                                             }
                                         } else if (what.Parms[0].equals("\"DrawChar\"") && charcter != null) {
+                                            /*
                                             charcter._CosSel = charcter._CosSel != 0 ? charcter._CosSel : 1;
                                             byte[] RAW_byte = null;
                                             try {
@@ -653,7 +656,7 @@ public class MainActivity extends Activity {
                                             Temp_Bitmap.setHasAlpha(true);
                                             charcter._Face_Bitmap = resize(Temp_Bitmap, (int) (Temp_Bitmap.getWidth() * ratio), (int) (Temp_Bitmap.getHeight() * ratio));
 
-                                        /*
+
                                         RAW_byte = Decode_CG_pak(String.format("%s_h%02d", _GRPName, charcter._Cheek) + ".gr");
                                         Temp_Bitmap = BitmapFactory.decodeByteArray(RAW_byte, 0, RAW_byte.length, opt);
                                         allpixels = new int[Temp_Bitmap.getHeight() * Temp_Bitmap.getWidth()];
