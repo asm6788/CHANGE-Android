@@ -1,2 +1,3 @@
 rootProject.name='EAGLS'
 include ':app'
+include ':zip_file'

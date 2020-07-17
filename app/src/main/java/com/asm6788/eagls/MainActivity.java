@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -28,6 +29,9 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.vending.expansion.zipfile.APKExpansionSupport;
+import com.android.vending.expansion.zipfile.ZipResourceFile;
+
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
@@ -37,6 +41,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,12 +59,19 @@ public class MainActivity extends Activity {
     static VideoPlayer video;
     static Point size = new Point();
     static boolean BlockTouch = false;
+    ZipResourceFile expansionFile = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        try {
+            expansionFile = APKExpansionSupport.getAPKExpansionZipFile(getApplicationContext(), 1, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -251,7 +263,7 @@ public class MainActivity extends Activity {
         byte[] IDX = new byte[60];
         FileInputStream idx = null;
         try {
-            idx = new FileInputStream(this.getObbDir().toString() + "/" + input);
+            idx = (FileInputStream) expansionFile.getInputStream(input);
             IDX = null;
             IDX = IOUtils.toByteArray(idx);
             idx.close();
@@ -298,7 +310,7 @@ public class MainActivity extends Activity {
         }
         byte[] DECODED_BUFFER = new byte[who.size];
         try {
-            FileInputStream pak = new FileInputStream(this.getObbDir().toString() + "/CGPACK.pak");
+            FileInputStream pak = (FileInputStream) expansionFile.getInputStream("CGPACK.pak");
             pak.skip(who.offset);
             pak.read(DECODED_BUFFER, 0, who.size);
         } catch (Exception e) {
@@ -325,7 +337,7 @@ public class MainActivity extends Activity {
         //언어의 부적절성(JAVA)
         byte[] DECODED_BUFFER = new byte[who.size];
         try {
-            FileInputStream pak = new FileInputStream(this.getObbDir().toString() + "/WAVEPACK.pak");
+            FileInputStream pak = (FileInputStream) expansionFile.getInputStream("WAVEPACK.pak");
             pak.skip(who.offset);
             pak.read(DECODED_BUFFER, 0, who.size);
         } catch (Exception e) {
@@ -347,7 +359,7 @@ public class MainActivity extends Activity {
         }
         byte[] DECODED_BUFFER = new byte[who.size - 0xe10];
         try {
-            FileInputStream pak = new FileInputStream(this.getObbDir().toString() + "/SCPACK.pak");
+            FileInputStream pak = (FileInputStream) expansionFile.getInputStream("SCPACK.pak");
             pak.skip(who.offset + 0xe10);
             pak.read(DECODED_BUFFER, 0, who.size - 0xe10);
         } catch (Exception e) {
@@ -488,9 +500,7 @@ public class MainActivity extends Activity {
                 MediaPlayer Effect_Player = new MediaPlayer();
                 StringBuilder text = new StringBuilder();
                 try {
-                    File file = new File(getObbDir() + "/Script/" + Script);
-
-                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    BufferedReader br = new BufferedReader(new InputStreamReader((FileInputStream) expansionFile.getInputStream("Script/" + Script)));
                     String line;
                     while ((line = br.readLine()) != null) {
                         text.append(line);
@@ -576,9 +586,13 @@ public class MainActivity extends Activity {
                                 } else if (what.Function == 42) {
                                     if (what.Parms[0].equals("\"BGM\"")) {
                                         try {
+                                            if (_BGMName.equals(".WAV")) {
+                                                surfaceHolder.unlockCanvasAndPost(canvas);
+                                                continue;
+                                            }
                                             BGM_Player.reset();
                                             BGM_Player.setVolume(0.3f, 0.3f);
-                                            BGM_Player.setDataSource(getObbDir().toString() + "/WAVE/" + _BGMName);
+                                            BGM_Player.setDataSource(expansionFile.getAssetFileDescriptor("WAVE/" + _BGMName.toUpperCase()));
                                             BGM_Player.prepare();
                                             BGM_Player.setLooping(true);
                                         } catch (IOException e) {
@@ -593,9 +607,9 @@ public class MainActivity extends Activity {
                                             PlayAudio(Effect_Player, Decode_WAVE_pak("se201.wav"));
                                             Effect_Player.start();
                                         }
-                                        video.run(getObbDir() + "/MOVIE/" + _MovieFileName, true, _MovieLoopFlg, image);
+                                        video.run(_MovieFileName, true, _MovieLoopFlg, image);
                                     } else if (what.Parms[1].equals("\"00HMovPlay.dat\"")) {
-                                        video.run(getObbDir() + "/MOVIE/" + _MovieFileName, false, _MovieLoopFlg, image);
+                                        video.run(_MovieFileName, false, _MovieLoopFlg, image);
                                     } else if (what.Parms[1].equals("\"00Draw.dat\"") || what.Parms[1].equals("\"00draw.dat\"")) {
                                         int orientation = getResources().getConfiguration().orientation;
                                         if (orientation != Configuration.ORIENTATION_LANDSCAPE) {
@@ -797,7 +811,8 @@ public class MainActivity extends Activity {
 
         public void run(String Path, final boolean IsMini, final boolean _MovieLoopFlg, final Point image) {
             final MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-            metaRetriever.setDataSource(Path);
+            AssetFileDescriptor fd = expansionFile.getAssetFileDescriptor("MOVIE/" + Path);
+            metaRetriever.setDataSource(fd.getFileDescriptor(), fd.getStartOffset(), fd.getLength());
             runOnUiThread(new Runnable() {
                 public void run() {
                     FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) videoPlayer.getLayoutParams();
@@ -817,7 +832,7 @@ public class MainActivity extends Activity {
             try {
                 Player.reset();
                 Player.setDisplay(sh);
-                Player.setDataSource(Path);
+                Player.setDataSource(fd);
                 Player.prepare();
             } catch (IOException e) {
                 e.printStackTrace();
