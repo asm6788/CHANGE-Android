@@ -19,7 +19,7 @@ import android.graphics.Point;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Parcelable;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -32,6 +32,8 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.preference.PreferenceManager;
+
 import com.android.vending.expansion.zipfile.APKExpansionSupport;
 import com.android.vending.expansion.zipfile.ZipResourceFile;
 
@@ -42,7 +44,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -59,12 +60,13 @@ public class MainActivity extends Activity {
     static List<EAGLS.IDX> METADATA_Wave = null;
     static int finalWidth;
     static InGame inGame;
+    static Parcelable state;
     static VideoPlayer video;
     static Point size = new Point();
     static boolean BlockTouch = false;
     ZipResourceFile expansionFile = null;
     SharedPreferences sharedPref;
-
+    SharedPreferences setting_prefs;
     @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +79,7 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
         sharedPref = getSharedPreferences("CharacterPos", Context.MODE_PRIVATE);
+        setting_prefs = PreferenceManager.getDefaultSharedPreferences(this);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -138,6 +141,7 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 inGame.Script = ((EAGLS.IDX) adapterView.getItemAtPosition(position)).filename;
+                state = listview.onSaveInstanceState();
                 listview.setVisibility(View.GONE);
                 inGame.start(ingame_view.getHolder());
             }
@@ -160,12 +164,14 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 inGame.Script = ((EAGLS.IDX) adapterView.getItemAtPosition(position)).filename;
+                state = listview.onSaveInstanceState();
                 listview.setVisibility(View.GONE);
                 BlockTouch = false;
                 inGame.charcter = null;
                 inGame.resume();
             }
         });
+        listview.onRestoreInstanceState(state);
         listview.setVisibility(View.VISIBLE);
     }
 
@@ -422,7 +428,7 @@ public class MainActivity extends Activity {
         boolean running = false;
         boolean Touched = false;
         boolean _MovieLoopFlg = false;
-        boolean Online;
+
         EAGLS.Charcter charcter = null;
         TextView subtitle = findViewById(R.id.subtitle);
         private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -539,7 +545,7 @@ public class MainActivity extends Activity {
                         String _GRPName = null;
                         String _BGMName = "";
                         String _MovieFileName = "";
-                        String who = "주인공";
+                        String who = setting_prefs.getString("Player_name", "주인공");
                         for (int i = 0; i < genrated.size(); i++) {
                             if (!running) {
                                 break;
@@ -556,10 +562,10 @@ public class MainActivity extends Activity {
                             paint.setStrokeWidth(4);
                             if (what.kind == EAGLS.Todo.Kind.Ment) {
                                 MENT = who + ": " + what.Ment;
-                                who = "주인공";
+                                who = setting_prefs.getString("Player_name", "주인공");
                             }
                             if (what.kind == EAGLS.Todo.Kind.Talk) {
-                                who = what.Ment;
+                                who = what.Ment.replace(":NameSuffix", setting_prefs.getString("Player_name", "주인공"));
                                 talked = true;
                                 String sound = what.Sound;
                                 what = genrated.get(++i);
@@ -748,6 +754,10 @@ public class MainActivity extends Activity {
                                     Char_Parsed = true;
                                 } else if (what.Parms[0].equals("_WaitTime")) {
                                     _WaitTime = Integer.parseInt(what.Parms[1]);
+                                } else if (what.Parms[0].equals("_mode")) {
+                                    if (what.Parms[1].split(",")[0].equals("@NoDraw")) {
+                                        charcter = null;
+                                    }
                                 }
                             }
 

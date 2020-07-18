@@ -24,7 +24,6 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-
     }
 
 
@@ -32,7 +31,7 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
-            Preference myPref = (Preference) findPreference("Chracter_Pos_Setting");
+            Preference myPref = findPreference("Chracter_Pos_Setting");
             myPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
                     Intent intent = new Intent(SettingsActivity.Me, CharacterPos.class);
@@ -42,5 +41,6 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
         }
+
     }
 }

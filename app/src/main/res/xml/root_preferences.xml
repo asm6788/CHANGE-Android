@@ -6,6 +6,15 @@
         <EditTextPreference
             app:key="Chracter_Pos_Setting"
             app:title="캐릭터 좌표 설정" />
+        <EditTextPreference
+            android:defaultValue="Default value"
+            android:key="Player_name"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="주인공 이름설정" />
+
+    </PreferenceCategory>
+    <PreferenceCategory android:title="개발자한테 기부하쉴?">
 
     </PreferenceCategory>
 </PreferenceScreen>
