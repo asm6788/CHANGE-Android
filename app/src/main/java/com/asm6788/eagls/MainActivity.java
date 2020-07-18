@@ -424,14 +424,14 @@ public class MainActivity extends Activity {
                     canvas.drawBitmap(CG, (size.x / 2) - (CG.getWidth() / 2), 0, paint);
                 }
                 //Not working properly
-                /*if (charcter != null) {
+                if (charcter != null) {
                     if (charcter._CosSel_Bitmap != null) {
                         canvas.drawBitmap(charcter._CosSel_Bitmap, (size.x / 2) - (charcter._CosSel_Bitmap.getWidth() / 2), size.y - charcter._CosSel_Bitmap.getHeight(), paint);
                     }
                     if (charcter._Face_Bitmap != null) {
-                        canvas.drawBitmap(charcter._Face_Bitmap, (size.x / 2) - (charcter._Face_Bitmap.getWidth() / 2) - 5, size.y - 1040, paint);
+                        canvas.drawBitmap(charcter._Face_Bitmap, (size.x / 2) - (charcter._Face_Bitmap.getWidth() / 2) - 5, size.y - 930, paint);
                     }
-                } */
+                }
             } catch (Exception e) {
             }
             runOnUiThread(new Runnable() {
@@ -626,7 +626,6 @@ public class MainActivity extends Activity {
                                             } catch (Exception e) {
                                             }
                                         } else if (what.Parms[0].equals("\"DrawChar\"") && charcter != null) {
-                                            /*
                                             charcter._CosSel = charcter._CosSel != 0 ? charcter._CosSel : 1;
                                             byte[] RAW_byte = null;
                                             try {
@@ -638,19 +637,12 @@ public class MainActivity extends Activity {
                                             }
                                             BitmapFactory.Options opt = new BitmapFactory.Options();
                                             opt.inMutable = true;
+                                            opt.inPreferredConfig = Bitmap.Config.ARGB_8888;
                                             Bitmap Temp_Bitmap = BitmapFactory.decodeByteArray(RAW_byte, 0, RAW_byte.length, opt);
-                                            int[] allpixels = new int[Temp_Bitmap.getHeight() * Temp_Bitmap.getWidth()];
-                                            Temp_Bitmap.getPixels(allpixels, 0, Temp_Bitmap.getWidth(), 0, 0, Temp_Bitmap.getWidth(), Temp_Bitmap.getHeight());
-                                            for (int k = 0; k < allpixels.length; k++) {
-                                                if (allpixels[k] == -16777216) {
-                                                    allpixels[k] = Color.TRANSPARENT;
-                                                }
-                                            }
-                                            Temp_Bitmap.setPixels(allpixels, 0, Temp_Bitmap.getWidth(), 0, 0, Temp_Bitmap.getWidth(), Temp_Bitmap.getHeight());
                                             Temp_Bitmap.setHasAlpha(true);
+                                            Temp_Bitmap = EAGLS.Charcter.Alpha_bmp(Temp_Bitmap, RAW_byte);
                                             charcter._CosSel_Bitmap = resize(Temp_Bitmap, size.x, size.y);
                                             float ratio = (float) charcter._CosSel_Bitmap.getHeight() / Temp_Bitmap.getHeight();
-
                                             try {
                                                 RAW_byte = Decode_CG_pak(String.format("%s_f%02d", _GRPName, charcter._Face) + ".gr");
                                             } catch (Exception e) {
@@ -659,38 +651,30 @@ public class MainActivity extends Activity {
                                                 continue;
                                             }
                                             Temp_Bitmap = BitmapFactory.decodeByteArray(RAW_byte, 0, RAW_byte.length, opt);
-                                            allpixels = new int[Temp_Bitmap.getHeight() * Temp_Bitmap.getWidth()];
-                                            Temp_Bitmap.getPixels(allpixels, 0, Temp_Bitmap.getWidth(), 0, 0, Temp_Bitmap.getWidth(), Temp_Bitmap.getHeight());
-                                            for (int k = 0; k < allpixels.length; k++) {
-                                                if (allpixels[k] == -16777216) {
-                                                    allpixels[k] = Color.TRANSPARENT;
-                                                }
-                                            }
-                                            Temp_Bitmap.setPixels(allpixels, 0, Temp_Bitmap.getWidth(), 0, 0, Temp_Bitmap.getWidth(), Temp_Bitmap.getHeight());
                                             Temp_Bitmap.setHasAlpha(true);
+                                            Temp_Bitmap = EAGLS.Charcter.Alpha_bmp(Temp_Bitmap, RAW_byte);
                                             charcter._Face_Bitmap = resize(Temp_Bitmap, (int) (Temp_Bitmap.getWidth() * ratio), (int) (Temp_Bitmap.getHeight() * ratio));
-
-
+/*
                                         RAW_byte = Decode_CG_pak(String.format("%s_h%02d", _GRPName, charcter._Cheek) + ".gr");
                                         Temp_Bitmap = BitmapFactory.decodeByteArray(RAW_byte, 0, RAW_byte.length, opt);
                                         allpixels = new int[Temp_Bitmap.getHeight() * Temp_Bitmap.getWidth()];
                                         Temp_Bitmap.getPixels(allpixels, 0, Temp_Bitmap.getWidth(), 0, 0, Temp_Bitmap.getWidth(), Temp_Bitmap.getHeight());
                                         for (int k = 0; k < allpixels.length; k++) {
-                                            if (allpixels[k] == -16777216) {
+                                            if (allpixels[k] >>> 24 == 255) {
                                                 allpixels[k] = Color.TRANSPARENT;
                                             }
                                         }
                                         Temp_Bitmap.setPixels(allpixels, 0, Temp_Bitmap.getWidth(), 0, 0, Temp_Bitmap.getWidth(), Temp_Bitmap.getHeight());
                                         Temp_Bitmap.setHasAlpha(true);
-                                        charcter._Cheek_Bitmap = Temp_Bitmap;*/
+                                        charcter._Cheek_Bitmap = Temp_Bitmap;
 
-                                        /*
+
                                         RAW_byte = Decode_CG_pak(String.format("%s_z%02d", _GRPName, charcter._Parts) + ".gr");
                                         Temp_Bitmap = BitmapFactory.decodeByteArray(RAW_byte, 0, RAW_byte.length, opt);
                                         allpixels = new int[Temp_Bitmap.getHeight() * Temp_Bitmap.getWidth()];
                                         Temp_Bitmap.getPixels(allpixels, 0, Temp_Bitmap.getWidth(), 0, 0, Temp_Bitmap.getWidth(), Temp_Bitmap.getHeight());
                                         for (int k = 0; k < allpixels.length; k++) {
-                                            if (allpixels[k] == -16777216) {
+                                            if (allpixels[k] >>> 24 == 255) {
                                                 allpixels[k] = Color.TRANSPARENT;
                                             }
                                         }
@@ -822,7 +806,7 @@ public class MainActivity extends Activity {
                         params.width = Gravity.NO_GRAVITY;
                     }
                     params.width = image.x;
-                    params.height = resize((int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH))), (int) (Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT))), image.x, image.y).y;
+                    params.height = resize(Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)), Integer.parseInt(metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)), image.x, image.y).y;
                     videoPlayer.setLayoutParams(params);
                     videoPlayer.setX((size.x / 2) - (image.x / 2));
                     videoPlayer.setVisibility(View.VISIBLE);

@@ -1,8 +1,16 @@
 package com.asm6788.eagls;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.core.graphics.ColorUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -176,5 +184,33 @@ public class EAGLS {
         public Bitmap _Face_Bitmap;
         public Bitmap _Cheek_Bitmap;
         public Bitmap _Parts_Bitmap;
+
+        public static Bitmap Alpha_bmp(Bitmap Temp_Bitmap, byte[] buffer) {
+            Bitmap orgininal = Temp_Bitmap.copy(Bitmap.Config.ARGB_8888, true);
+            int[] allpixels = new int[Temp_Bitmap.getHeight() * Temp_Bitmap.getWidth()];
+            Temp_Bitmap.getPixels(allpixels, 0, Temp_Bitmap.getWidth(), 0, 0, Temp_Bitmap.getWidth(), Temp_Bitmap.getHeight());
+            int[] reversed_buffer = new int[Temp_Bitmap.getHeight() * Temp_Bitmap.getWidth()];
+            for (int k = 0; k < allpixels.length; k++) {
+                if ((4 * k) + 57 >= buffer.length) {
+                    break;
+                }
+                reversed_buffer[k] = ColorUtils.setAlphaComponent(Color.WHITE, buffer[(4 * k) + 57] & 0xff);
+            }
+            Matrix sideInversion = new Matrix();
+            sideInversion.setScale(1, -1);
+            Temp_Bitmap.setPixels(reversed_buffer, 0, Temp_Bitmap.getWidth(), 0, 0, Temp_Bitmap.getWidth(), Temp_Bitmap.getHeight());
+            Bitmap sideInversionImg = Bitmap.createBitmap(Temp_Bitmap, 0, 0, Temp_Bitmap.getWidth(), Temp_Bitmap.getHeight(), sideInversion, false);
+
+            Bitmap result = Bitmap.createBitmap(sideInversionImg.getWidth(), sideInversionImg.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas tempCanvas = new Canvas(result);
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+            tempCanvas.drawBitmap(orgininal, 0, 0, null);
+            tempCanvas.drawBitmap(sideInversionImg, 0, 0, paint);
+            paint.setXfermode(null);
+
+            return result;
+        }
     }
+
 }
