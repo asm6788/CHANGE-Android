@@ -164,14 +164,7 @@ public class EAGLS {
     }
 
     public static class Charcter {
-        public Charcter(int _CosSel, int _Face, int _Cheek, int _Parts, String _Target, boolean _CharUP) {
-            this._CosSel = _CosSel;
-            this._Face = _Face;
-            this._Cheek = _Cheek;
-            this._Parts = _Parts;
-            this._Target = _Target;
-            this._CharUP = _CharUP;
-        }
+        public String _GRPNAME;
 
         public int _CosSel;
         public int _Face;
@@ -179,6 +172,16 @@ public class EAGLS {
         public int _Parts;
         public String _Target;
         public boolean _CharUP;
+
+        public Charcter(int _CosSel, int _Face, int _Cheek, int _Parts, String _Target, boolean _CharUP, String _GRPNAME) {
+            this._CosSel = _CosSel;
+            this._Face = _Face;
+            this._Cheek = _Cheek;
+            this._Parts = _Parts;
+            this._Target = _Target;
+            this._CharUP = _CharUP;
+            this._GRPNAME = _GRPNAME;
+        }
 
         public Bitmap _CosSel_Bitmap;
         public Bitmap _Face_Bitmap;

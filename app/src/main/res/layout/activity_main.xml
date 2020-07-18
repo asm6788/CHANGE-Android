@@ -38,6 +38,14 @@
         android:onClick="Del_Force_Char"
         android:text="캐릭터삭제" />
 
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:onClick="Show_setting"
+        android:text="설정" />
+
     <ListView
         android:id="@+id/Script_list"
         android:textDirection="rtl"

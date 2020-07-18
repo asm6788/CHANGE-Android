@@ -3,6 +3,9 @@ package com.asm6788.eagls;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
@@ -60,7 +63,9 @@ public class MainActivity extends Activity {
     static Point size = new Point();
     static boolean BlockTouch = false;
     ZipResourceFile expansionFile = null;
+    SharedPreferences sharedPref;
 
+    @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +76,7 @@ public class MainActivity extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        sharedPref = getSharedPreferences("CharacterPos", Context.MODE_PRIVATE);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -193,6 +198,12 @@ public class MainActivity extends Activity {
 
     public void Del_Force_Char(View v) {
         inGame.charcter = null;
+    }
+
+    public void Show_setting(View v) {
+        Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     long next = 0L;
@@ -423,13 +434,12 @@ public class MainActivity extends Activity {
                 if (CG != null) {
                     canvas.drawBitmap(CG, (size.x / 2) - (CG.getWidth() / 2), 0, paint);
                 }
-                //Not working properly
                 if (charcter != null) {
                     if (charcter._CosSel_Bitmap != null) {
                         canvas.drawBitmap(charcter._CosSel_Bitmap, (size.x / 2) - (charcter._CosSel_Bitmap.getWidth() / 2), size.y - charcter._CosSel_Bitmap.getHeight(), paint);
                     }
                     if (charcter._Face_Bitmap != null) {
-                        canvas.drawBitmap(charcter._Face_Bitmap, (size.x / 2) - (charcter._Face_Bitmap.getWidth() / 2) - 5, size.y - 930, paint);
+                        canvas.drawBitmap(charcter._Face_Bitmap, sharedPref.getInt(charcter._GRPNAME + "x", 0), sharedPref.getInt(charcter._GRPNAME + "y", 0), paint);
                     }
                 }
             } catch (Exception e) {
@@ -575,7 +585,7 @@ public class MainActivity extends Activity {
                                     if (what.Parms[0].equals("\"_GRPName\"") || what.Parms[0].equals("\"_grpname\"")) {
                                         _GRPName = what.Parms[1].replace("\"", "");
                                         if (Char_Parsed) {
-                                            charcter = new EAGLS.Charcter(_CosSel, _Face, _Cheek, _Parts, _Target, _CharUP);
+                                            charcter = new EAGLS.Charcter(_CosSel, _Face, _Cheek, _Parts, _Target, _CharUP, _GRPName);
                                             Char_Parsed = false;
                                         }
                                     } else if (what.Parms[0].equals("\"_BGMName\"")) {
