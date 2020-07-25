@@ -7,7 +7,7 @@
             app:key="Chracter_Pos_Setting"
             app:title="캐릭터 좌표 설정" />
         <EditTextPreference
-            android:defaultValue="Default value"
+            android:defaultValue="주인공"
             android:key="Player_name"
             android:selectAllOnFocus="true"
             android:singleLine="true"

@@ -36,7 +36,6 @@ public class SettingsActivity extends AppCompatActivity {
                 public boolean onPreferenceClick(Preference preference) {
                     Intent intent = new Intent(SettingsActivity.Me, CharacterPos.class);
                     startActivity(intent);
-                    SettingsActivity.Me.finish();
                     return true;
                 }
             });

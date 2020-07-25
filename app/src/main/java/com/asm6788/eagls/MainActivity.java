@@ -16,6 +16,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -67,6 +68,7 @@ public class MainActivity extends Activity {
     ZipResourceFile expansionFile = null;
     SharedPreferences sharedPref;
     SharedPreferences setting_prefs;
+
     @SuppressLint("WrongConstant")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,8 +153,7 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
         inGame.stop();
-        final SurfaceView ingame_view = findViewById(R.id.InGame_view);
-        ingame_view.getHolder().addCallback(new Holder());
+        video.stop();
 
         final ListView listview = findViewById(R.id.Script_list);
         ArrayAdapter<EAGLS.IDX> adapter = new ArrayAdapter<>(this,
@@ -209,7 +210,6 @@ public class MainActivity extends Activity {
     public void Show_setting(View v) {
         Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(intent);
-        finish();
     }
 
     long next = 0L;
@@ -404,7 +404,6 @@ public class MainActivity extends Activity {
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
         }
 
         @Override
@@ -516,7 +515,7 @@ public class MainActivity extends Activity {
                 MediaPlayer Effect_Player = new MediaPlayer();
                 StringBuilder text = new StringBuilder();
                 try {
-                    BufferedReader br = new BufferedReader(new InputStreamReader((FileInputStream) expansionFile.getInputStream("Script/" + Script)));
+                    BufferedReader br = new BufferedReader(new InputStreamReader(expansionFile.getInputStream("Script/" + Script)));
                     String line;
                     while ((line = br.readLine()) != null) {
                         text.append(line);
@@ -561,7 +560,7 @@ public class MainActivity extends Activity {
                             paint.setStyle(Paint.Style.STROKE);
                             paint.setStrokeWidth(4);
                             if (what.kind == EAGLS.Todo.Kind.Ment) {
-                                MENT = who + ": " + what.Ment;
+                                MENT = who + ": " + what.Ment.replace(":NameSuffix", setting_prefs.getString("Player_name", "주인공"));
                                 who = setting_prefs.getString("Player_name", "주인공");
                             }
                             if (what.kind == EAGLS.Todo.Kind.Talk) {
@@ -569,7 +568,7 @@ public class MainActivity extends Activity {
                                 talked = true;
                                 String sound = what.Sound;
                                 what = genrated.get(++i);
-                                MENT = who + ": " + what.Ment;
+                                MENT = who + ": " + what.Ment.replace(":NameSuffix", setting_prefs.getString("Player_name", "주인공"));
                                 Draw(CG, MENT, canvas);
                                 if (sound != null) {
                                     Talk_Player.reset();
@@ -616,6 +615,7 @@ public class MainActivity extends Activity {
                                         }
                                         BGM_Player.start();
                                     } else if (what.Parms[1].equals("\"02MiniMovPlay.dat\"")) {
+                                        charcter = null;
                                         BlockTouch = true;
                                         if (_MovieFileName.charAt(0) == 'i') {
                                             Effect_Player.reset();
@@ -625,6 +625,7 @@ public class MainActivity extends Activity {
                                         }
                                         video.run(_MovieFileName, true, _MovieLoopFlg, image);
                                     } else if (what.Parms[1].equals("\"00HMovPlay.dat\"")) {
+                                        charcter = null;
                                         video.run(_MovieFileName, false, _MovieLoopFlg, image);
                                     } else if (what.Parms[1].equals("\"00Draw.dat\"") || what.Parms[1].equals("\"00draw.dat\"")) {
                                         int orientation = getResources().getConfiguration().orientation;
@@ -635,6 +636,7 @@ public class MainActivity extends Activity {
                                             size.y = temp;
                                         }
                                         if (what.Parms[0].equals("\"DrawBG\"") || what.Parms[0].equals("\"DrawCG\"")) {
+                                            charcter = null;
                                             try {
                                                 byte[] RAW_byte = Decode_CG_pak(_GRPName + ".gr");
                                                 Bitmap bitmap = BitmapFactory.decodeByteArray(RAW_byte, 0, RAW_byte.length);
@@ -813,6 +815,12 @@ public class MainActivity extends Activity {
             }
         }
 
+        public void stop() {
+            Player.stop();
+            videoPlayer.setVisibility(View.GONE);
+            sh = videoPlayer.getHolder();
+        }
+
         public void run(String Path, final boolean IsMini, final boolean _MovieLoopFlg, final Point image) {
             final MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
             AssetFileDescriptor fd = expansionFile.getAssetFileDescriptor("MOVIE/" + Path);
@@ -832,7 +840,6 @@ public class MainActivity extends Activity {
                     videoPlayer.setVisibility(View.VISIBLE);
                 }
             });
-
             try {
                 Player.reset();
                 Player.setDisplay(sh);
